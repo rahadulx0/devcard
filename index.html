@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevCard</title>
+    <title>GitID</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
@@ -872,7 +872,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">DevCard</div>
+            <div class="logo">GitID</div>
             <div class="tagline">Developer ID Card Generator</div>
         </div>
 
@@ -1142,7 +1142,7 @@
                     canvas.toBlob((blob) => {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
-                        link.download = `${currentUsername}-devcard.png`;
+                        link.download = `${currentUsername}-gitid.png`;
                         link.href = url;
                         link.click();
                         URL.revokeObjectURL(url);

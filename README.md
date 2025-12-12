@@ -1,4 +1,4 @@
-# DevCard - Developer ID Card Generator
+# GitID - Developer ID Card Generator
 
 A beautiful, modern web application that generates stunning visual ID cards for GitHub profiles. Perfect for sharing your GitHub stats on social media, portfolios, or with your team.
 
