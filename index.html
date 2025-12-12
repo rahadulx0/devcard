@@ -112,19 +112,51 @@
         }
 
         .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-left: 4px solid #ef4444;
             color: #fca5a5;
-            padding: 10px 12px;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-top: 24px;
             margin-bottom: 16px;
             display: none;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
         }
 
         .error-message.show {
             display: block;
-            animation: shake 0.4s ease;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-title {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .loading {
@@ -985,27 +1017,16 @@
             downloadBtn = document.getElementById('downloadBtn');
         }
 
-        // Check for username in URL path or parameters on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            initializeElements();
-            setupEventListeners();
-
-            // Check for path-based routing (e.g., /username)
-            const pathname = window.location.pathname;
-            const pathParts = pathname.split('/').filter(part => part.length > 0);
-
+        // Function to load profile from URL
+        function loadProfileFromURL() {
             let username = null;
 
-            // Check if there's a username in the path (last segment)
-            if (pathParts.length > 0) {
-                const lastPart = pathParts[pathParts.length - 1];
-                // Make sure it's not index.html or similar
-                if (!lastPart.includes('.')) {
-                    username = lastPart;
-                }
+            // Check for hash-based routing (e.g., #username or /#username)
+            if (window.location.hash) {
+                username = window.location.hash.replace(/^#\/?/, '');
             }
 
-            // Fallback to query parameter if no path-based username
+            // Fallback to query parameter (e.g., ?user=username)
             if (!username) {
                 const urlParams = new URLSearchParams(window.location.search);
                 username = urlParams.get('user');
@@ -1016,6 +1037,18 @@
                 currentUsername = username;
                 fetchGitHubStats(username);
             }
+        }
+
+        // Check for username in URL on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeElements();
+            setupEventListeners();
+            loadProfileFromURL();
+        });
+
+        // Listen for hash changes (when URL is changed in same tab)
+        window.addEventListener('hashchange', () => {
+            loadProfileFromURL();
         });
 
         function setupEventListeners() {
@@ -1025,10 +1058,8 @@
                 if (username) {
                     currentUsername = username;
 
-                    // Update URL using path-based routing
-                    const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '';
-                    const newPath = basePath + '/' + username;
-                    history.pushState({ username }, '', newPath);
+                    // Update URL using hash-based routing
+                    window.location.hash = username;
 
                     await fetchGitHubStats(username);
                 }
@@ -1040,9 +1071,8 @@
                 hideError();
                 currentUsername = '';
 
-                // Reset URL to base path
-                const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '/';
-                history.pushState({}, '', basePath);
+                // Clear hash from URL
+                history.pushState('', document.title, window.location.pathname + window.location.search);
             });
 
             viewProfileBtn.addEventListener('click', () => {
@@ -1052,9 +1082,8 @@
             });
 
             shareBtn.addEventListener('click', async () => {
-                // Use path-based URL format
-                const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '';
-                const shareUrl = `${window.location.origin}${basePath}/${currentUsername}`;
+                // Use hash-based URL format
+                const shareUrl = `${window.location.origin}${window.location.pathname}#${currentUsername}`;
 
                 try {
                     await navigator.clipboard.writeText(shareUrl);
@@ -1165,7 +1194,13 @@
                 hideLoading();
             } catch (error) {
                 hideLoading();
+                hideProfile();
                 showError(error.message);
+                // Make sure search form and header are visible when there's an error
+                const searchForm = document.querySelector('.search-form');
+                const header = document.querySelector('.header');
+                if (searchForm) searchForm.style.display = 'flex';
+                if (header) header.style.display = 'block';
             }
         }
 
@@ -1593,7 +1628,15 @@
         }
 
         function showError(message) {
-            errorMessage.textContent = `❌ Error: ${message}`;
+            errorMessage.innerHTML = `
+                <div class="error-title">
+                    <svg class="error-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.22a.751.751 0 0 0-1.042-.018.751.751 0 0 0-.018 1.042L9.94 8.5l-1.72 1.72a.751.751 0 0 0 .018 1.042.751.751 0 0 0 1.042.018L11 9.56l1.72 1.72a.751.751 0 0 0 1.042-.018.751.751 0 0 0 .018-1.042L12.06 8.5l1.72-1.72a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L11 7.44 9.28 5.72Z"/>
+                    </svg>
+                    Error
+                </div>
+                <div>${message}</div>
+            `;
             errorMessage.classList.add('show');
         }
 

@@ -53,7 +53,7 @@ A beautiful, modern web application that generates stunning visual ID cards for 
 
 ### Option 1: Direct Usage (Recommended)
 
-1. **Download the file**: Save `devcard.html` to your computer
+1. **Download the file**: Save `index.html` to your computer
 2. **Open in browser**: Double-click the file to open it in any modern web browser
 3. **Enter username**: Type any GitHub username and click "Generate"
 4. **Download or share**: Use the buttons at the bottom to download or share the profile
@@ -79,16 +79,19 @@ npx http-server
 php -S localhost:8000
 ```
 
-Then open `http://localhost:8000/devcard.html` in your browser.
+Then open `http://localhost:8000` in your browser.
 
 ### Option 3: Share Direct Links
 
-Share profiles with pre-loaded data using URL parameters:
+Share profiles with pre-loaded data using simple URLs:
 
 ```
-devcard.html?user=torvalds
-devcard.html?user=github
+index.html#torvalds
+index.html#github
+https://yoursite.com/#octocat
 ```
+
+The profile will automatically load when accessed via these URLs. No server configuration needed!
 
 ## 🎨 Features Breakdown
 
@@ -208,7 +211,7 @@ Contributions are welcome! Here's how you can help:
 
 ```bash
 # No build process required!
-# Just edit devcard.html and refresh your browser
+# Just edit index.html and refresh your browser
 ```
 
 ## 📄 License
