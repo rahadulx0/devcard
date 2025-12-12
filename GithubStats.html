@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Stats - Developer ID Card</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            background-image:
+                radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 70%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+                radial-gradient(at 40% 80%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .tagline {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .search-section {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.5s ease 0.1s both;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.4s ease;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        .profile-card {
+            display: none;
+        }
+
+        .profile-card.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .id-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            align-items: start;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: #fff;
+        }
+
+        .profile-username {
+            color: #6366f1;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .profile-bio {
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+        }
+
+        .meta-item svg {
+            width: 14px;
+            height: 14px;
+            opacity: 0.7;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .meta-item a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        .meta-item a:hover {
+            text-decoration: underline;
+        }
+
+        .stats-wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px 6px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--color);
+            box-shadow: 0 8px 16px -4px var(--glow);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color);
+            margin-bottom: 2px;
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .repos-section {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .repos-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .repo-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .repo-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateX(4px);
+            box-shadow: -4px 0 12px -2px rgba(99, 102, 241, 0.3);
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 6px;
+        }
+
+        .repo-name {
+            color: #6366f1;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .repo-description {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .repo-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        .repo-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-stat svg {
+            opacity: 0.7;
+        }
+
+        .language-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 5px;
+            font-size: 0.7rem;
+            color: #a5b4fc;
+        }
+
+        .language-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px;
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            color: #6366f1;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .back-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .profile-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+
+        .badge.hireable {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .badge svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        .languages-section {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .languages-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+        }
+
+        .language-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .language-bar:last-child {
+            margin-bottom: 0;
+        }
+
+        .language-name {
+            min-width: 80px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .language-progress {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .language-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .language-percent {
+            min-width: 40px;
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: right;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: #a5b4fc;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .action-btn svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        .action-btn.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .contribution-grid {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .contribution-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .contribution-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .contribution-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .contribution-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: #6366f1;
+        }
+
+        .contribution-info {
+            flex: 1;
+        }
+
+        .contribution-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .contribution-label {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        .featured-repo {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .featured-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(234, 179, 8, 0.15);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: #fde047;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .featured-badge svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
+        .featured-repo-name {
+            color: #6366f1;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .featured-repo-name:hover {
+            text-decoration: underline;
+        }
+
+        .featured-repo-desc {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .featured-stats {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .topics-section {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .topics-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .topic-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 12px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #a5b4fc;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .topic-tag:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .topic-tag svg {
+            width: 10px;
+            height: 10px;
+            fill: currentColor;
+        }
+
+        .profile-timestamp {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.7rem;
+            margin-top: 16px;
+            padding: 8px;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 6px;
+        }
+
+        .badge.pro {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #c4b5fd;
+        }
+
+        .badge.org {
+            background: rgba(236, 72, 153, 0.15);
+            border-color: rgba(236, 72, 153, 0.3);
+            color: #f9a8d4;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            .stats-wrapper {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contribution-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .avatar {
+                width: 70px;
+                height: 70px;
+            }
+
+            .profile-meta {
+                justify-content: center;
+            }
+
+            .profile-badges {
+                justify-content: center;
+            }
+
+            .topics-grid {
+                justify-content: center;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .card-content {
+                padding: 16px;
+            }
+
+            .repos-section {
+                padding: 12px;
+            }
+
+            .language-name {
+                min-width: 70px;
+                font-size: 0.7rem;
+            }
+
+            .page-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-wrapper {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contribution-stats {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 12px;
+            }
+
+            .card-content {
+                padding: 14px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .search-section, .footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">GitHub Stats</div>
+            <div class="tagline">Developer ID Card Generator</div>
+        </div>
+
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <input
+                    type="text"
+                    class="search-input"
+                    id="usernameInput"
+                    placeholder="Enter GitHub username..."
+                    required
+                    autocomplete="off"
+                />
+                <button type="submit" class="search-btn" id="searchBtn">
+                    Generate
+                </button>
+            </form>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading profile...</p>
+        </div>
+
+        <div class="profile-card" id="profileCard">
+            <div class="id-card">
+                <div class="card-content">
+                    <div class="profile-header">
+                        <div class="avatar-wrapper">
+                            <img src="" alt="Avatar" class="avatar" id="avatar">
+                        </div>
+                        <div class="profile-info">
+                            <h2 class="profile-name" id="name"></h2>
+                            <div class="profile-username" id="username"></div>
+                            <div class="profile-badges" id="profileBadges"></div>
+                            <div class="profile-bio" id="bio"></div>
+                            <div class="profile-meta" id="profileMeta"></div>
+                        </div>
+                    </div>
+
+                    <div class="stats-wrapper" id="statsWrapper"></div>
+
+                    <div class="languages-section" id="languagesSection">
+                        <div class="languages-title">Top Languages</div>
+                        <div id="languagesBars"></div>
+                    </div>
+
+                    <div class="contribution-grid">
+                        <div class="languages-title">Contribution Stats</div>
+                        <div class="contribution-stats" id="contributionStats"></div>
+                    </div>
+
+                    <div class="topics-section" id="topicsSection">
+                        <div class="languages-title">Popular Topics</div>
+                        <div class="topics-grid" id="topicsGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="featured-repo" id="featuredRepo"></div>
+
+            <div class="repos-section">
+                <h3 class="section-title">Top Repositories</h3>
+                <div class="repos-grid" id="reposGrid"></div>
+            </div>
+
+            <div class="profile-timestamp" id="profileTimestamp"></div>
+
+            <div class="page-actions">
+                <button class="back-btn" id="backBtn">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.78 12.78a.75.75 0 0 1-1.06 0L4.47 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L6.06 8l3.72 3.72a.75.75 0 0 1 0 1.06Z"/>
+                    </svg>
+                    Search Another
+                </button>
+                <button class="action-btn" id="downloadBtn">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.75 1.75a.75.75 0 0 0-1.5 0v6.69L4.72 5.72a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 1 0-1.06-1.06L8.75 8.44V1.75Z"/>
+                        <path d="M3.5 11.75a.75.75 0 0 0 0 1.5h9a.75.75 0 0 0 0-1.5h-9Z"/>
+                    </svg>
+                    Download Card
+                </button>
+                <button class="action-btn" id="viewProfileBtn">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    View on GitHub
+                </button>
+                <button class="action-btn" id="shareBtn">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"/>
+                    </svg>
+                    Share Profile
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by <a href="https://docs.github.com/en/rest" target="_blank">GitHub API</a>
+        </div>
+    </div>
+
+    <script>
+        const languageColors = {
+            JavaScript: '#f1e05a',
+            TypeScript: '#3178c6',
+            Python: '#3572A5',
+            Java: '#b07219',
+            C: '#555555',
+            'C++': '#f34b7d',
+            'C#': '#178600',
+            Ruby: '#701516',
+            Go: '#00ADD8',
+            Rust: '#dea584',
+            PHP: '#4F5D95',
+            Swift: '#ffac45',
+            Kotlin: '#A97BFF',
+            Dart: '#00B4AB',
+            Shell: '#89e051',
+            HTML: '#e34c26',
+            CSS: '#563d7c',
+            Vue: '#41b883',
+            React: '#61dafb',
+            Jupyter: '#DA5B0B',
+        };
+
+        const searchForm = document.getElementById('searchForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const loading = document.getElementById('loading');
+        const profileCard = document.getElementById('profileCard');
+        const backBtn = document.getElementById('backBtn');
+        const viewProfileBtn = document.getElementById('viewProfileBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let currentUsername = '';
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+            if (username) {
+                currentUsername = username;
+                await fetchGitHubStats(username);
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            hideProfile();
+            usernameInput.value = '';
+            hideError();
+            currentUsername = '';
+        });
+
+        viewProfileBtn.addEventListener('click', () => {
+            if (currentUsername) {
+                window.open(`https://github.com/${currentUsername}`, '_blank');
+            }
+        });
+
+        shareBtn.addEventListener('click', async () => {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?user=${currentUsername}`;
+
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                shareBtn.classList.add('success');
+                shareBtn.innerHTML = `
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
+                    </svg>
+                    Link Copied!
+                `;
+
+                setTimeout(() => {
+                    shareBtn.classList.remove('success');
+                    shareBtn.innerHTML = `
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"/>
+                        </svg>
+                        Share Profile
+                    `;
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy link. Please copy manually: ' + shareUrl);
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            if (!currentUsername) return;
+
+            // Show loading state
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = `
+                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" class="spinning">
+                    <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0z"/>
+                    <path d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+                Generating...
+            `;
+
+            try {
+                const idCard = document.querySelector('.id-card');
+
+                // Use html2canvas with high quality settings
+                const canvas = await html2canvas(idCard, {
+                    scale: 3, // Higher scale for better quality
+                    backgroundColor: null,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true,
+                    imageTimeout: 0,
+                    windowWidth: idCard.scrollWidth,
+                    windowHeight: idCard.scrollHeight
+                });
+
+                // Convert canvas to blob
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `${currentUsername}-github-stats.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+
+                    // Show success state
+                    downloadBtn.classList.add('success');
+                    downloadBtn.innerHTML = `
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
+                        </svg>
+                        Downloaded!
+                    `;
+
+                    setTimeout(() => {
+                        downloadBtn.classList.remove('success');
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                    }, 2000);
+                }, 'image/png', 1.0); // Maximum quality
+
+            } catch (error) {
+                console.error('Download failed:', error);
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+                alert('Failed to download image. Please try again.');
+            }
+        });
+
+        // Check for username in URL parameters on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('user');
+            if (username) {
+                usernameInput.value = username;
+                currentUsername = username;
+                fetchGitHubStats(username);
+            }
+        });
+
+        async function fetchGitHubStats(username) {
+            try {
+                showLoading();
+                hideError();
+                hideProfile();
+
+                const [userResponse, reposResponse] = await Promise.all([
+                    fetch(`https://api.github.com/users/${username}`),
+                    fetch(`https://api.github.com/users/${username}/repos?sort=stars&per_page=100`)
+                ]);
+
+                if (!userResponse.ok) {
+                    throw new Error(userResponse.status === 404 ? 'User not found' : 'Failed to fetch user data');
+                }
+
+                const userData = await userResponse.json();
+                const reposData = await reposResponse.json();
+
+                displayProfile(userData, reposData);
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                showError(error.message);
+            }
+        }
+
+        function displayProfile(user, repos) {
+            // Avatar and basic info
+            document.getElementById('avatar').src = user.avatar_url;
+            document.getElementById('name').textContent = user.name || user.login;
+            document.getElementById('username').textContent = `@${user.login}`;
+            document.getElementById('bio').textContent = user.bio || 'No bio available';
+
+            // Profile badges
+            const badges = [];
+
+            // Account type badge
+            if (user.type === 'Organization') {
+                badges.push(`
+                    <div class="badge org">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.75 16A1.75 1.75 0 0 1 0 14.25V1.75C0 .784.784 0 1.75 0h8.5C11.216 0 12 .784 12 1.75v12.5c0 .085-.006.168-.018.25h2.268a.25.25 0 0 0 .25-.25V8.285a.25.25 0 0 0-.111-.208l-1.055-.703a.75.75 0 1 1 .832-1.248l1.055.703c.487.325.779.871.779 1.456v5.965A1.75 1.75 0 0 1 14.25 16h-3.5a.75.75 0 0 1-.197-.026c-.099.017-.2.026-.303.026h-3a.75.75 0 0 1-.75-.75V14h-1v1.25a.75.75 0 0 1-.75.75h-3zM1.75 1.5a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h2.5a.25.25 0 0 0 .25-.25v-12.5a.25.25 0 0 0-.25-.25h-2.5zm4.5 0a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h2.5a.25.25 0 0 0 .25-.25v-12.5a.25.25 0 0 0-.25-.25h-2.5z"/>
+                        </svg>
+                        Organization
+                    </div>
+                `);
+            } else if (user.plan && user.plan.name !== 'free') {
+                badges.push(`
+                    <div class="badge pro">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.657.511a.75.75 0 0 1 .686 0l5.25 2.625a.75.75 0 0 1 .407.666v5.25a.75.75 0 0 1-.407.666l-5.25 2.626a.75.75 0 0 1-.686 0l-5.25-2.626a.75.75 0 0 1-.407-.666v-5.25a.75.75 0 0 1 .407-.666l5.25-2.625zM8 1.98L3.25 4.25l4.75 2.37 4.75-2.37L8 1.98zM2.5 5.81v4.567l5 2.5v-4.567l-5-2.5zm6.5 7.067l5-2.5V5.81l-5 2.5v4.567z"/>
+                        </svg>
+                        ${user.plan.name.charAt(0).toUpperCase() + user.plan.name.slice(1)} User
+                    </div>
+                `);
+            }
+
+            // Calculate account age
+            const createdDate = new Date(user.created_at);
+            const now = new Date();
+            const yearsOld = Math.floor((now - createdDate) / (365.25 * 24 * 60 * 60 * 1000));
+            badges.push(`
+                <div class="badge">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.75.75 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0z"/>
+                    </svg>
+                    ${yearsOld} year${yearsOld !== 1 ? 's' : ''} on GitHub
+                </div>
+            `);
+
+            if (user.hireable) {
+                badges.push(`
+                    <div class="badge hireable">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
+                        </svg>
+                        Available for hire
+                    </div>
+                `);
+            }
+
+            if (user.public_gists > 0) {
+                badges.push(`
+                    <div class="badge">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0zM8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zM8 10.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/>
+                        </svg>
+                        ${user.public_gists} Public Gists
+                    </div>
+                `);
+            }
+
+            document.getElementById('profileBadges').innerHTML = badges.join('');
+
+            // Profile metadata with SVG icons
+            const metaItems = [];
+
+            if (user.email) {
+                metaItems.push(`
+                    <div class="meta-item">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2ZM1.5 12.251c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V5.809L8.38 9.397a.75.75 0 0 1-.76 0L1.5 5.809v6.442Zm13-8.181v-.32a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25v.32L8 7.88l6.5-3.81Z"/>
+                        </svg>
+                        <a href="mailto:${user.email}">${user.email}</a>
+                    </div>
+                `);
+            }
+
+            if (user.location) {
+                metaItems.push(`
+                    <div class="meta-item">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+                        </svg>
+                        ${user.location}
+                    </div>
+                `);
+            }
+
+            if (user.company) {
+                metaItems.push(`
+                    <div class="meta-item">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 2h5v2H2V2zm0 3h5v2H2V5zm0 3h5v2H2V8zm6-6h6v12H8V2zm2 2v2h2V4h-2zm0 3v2h2V7h-2zm0 3v2h2v-2h-2z"/>
+                        </svg>
+                        ${user.company}
+                    </div>
+                `);
+            }
+
+            if (user.blog) {
+                const blogUrl = user.blog.startsWith('http') ? user.blog : 'https://' + user.blog;
+                metaItems.push(`
+                    <div class="meta-item">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0z"/>
+                        </svg>
+                        <a href="${blogUrl}" target="_blank">${user.blog}</a>
+                    </div>
+                `);
+            }
+
+            if (user.twitter_username) {
+                metaItems.push(`
+                    <div class="meta-item">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z"/>
+                        </svg>
+                        @${user.twitter_username}
+                    </div>
+                `);
+            }
+
+            document.getElementById('profileMeta').innerHTML = metaItems.join('');
+
+            // Calculate stats
+            const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+            const totalForks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
+            const languages = {};
+            repos.forEach(repo => {
+                if (repo.language) {
+                    languages[repo.language] = (languages[repo.language] || 0) + 1;
+                }
+            });
+            const topLanguage = Object.keys(languages).sort((a, b) => languages[b] - languages[a])[0] || 'N/A';
+
+            const stats = [
+                { value: user.public_repos, label: 'Repos', color: '#6366f1', glow: 'rgba(99, 102, 241, 0.3)' },
+                { value: formatNumber(totalStars), label: 'Stars', color: '#eab308', glow: 'rgba(234, 179, 8, 0.3)' },
+                { value: formatNumber(user.followers), label: 'Followers', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.3)' },
+                { value: formatNumber(user.following), label: 'Following', color: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.3)' },
+                { value: formatNumber(totalForks), label: 'Forks', color: '#14b8a6', glow: 'rgba(20, 184, 166, 0.3)' },
+                { value: user.public_gists, label: 'Gists', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.3)' }
+            ];
+
+            const statsHTML = stats.map(stat => `
+                <div class="stat-item" style="--color: ${stat.color}; --glow: ${stat.glow};">
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+            `).join('');
+            document.getElementById('statsWrapper').innerHTML = statsHTML;
+
+            // Language breakdown (top 5)
+            const totalRepos = Object.values(languages).reduce((sum, count) => sum + count, 0);
+            const topLanguages = Object.entries(languages)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const languageBarsHTML = topLanguages.map(([lang, count]) => {
+                const percentage = ((count / totalRepos) * 100).toFixed(1);
+                const color = languageColors[lang] || '#64748b';
+                return `
+                    <div class="language-bar">
+                        <div class="language-name">
+                            <span class="language-dot" style="background-color: ${color}"></span>
+                            ${lang}
+                        </div>
+                        <div class="language-progress">
+                            <div class="language-fill" style="width: ${percentage}%; background-color: ${color}"></div>
+                        </div>
+                        <div class="language-percent">${percentage}%</div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('languagesBars').innerHTML = languageBarsHTML;
+
+            // Contribution stats
+            const totalIssues = repos.reduce((sum, repo) => sum + (repo.open_issues_count || 0), 0);
+            const forkedRepos = repos.filter(repo => repo.fork).length;
+            const originalRepos = repos.length - forkedRepos;
+            const reposWithTopics = repos.filter(repo => repo.topics && repo.topics.length > 0).length;
+
+            // Calculate average repo size
+            const avgSize = repos.length > 0 ? Math.round(repos.reduce((sum, repo) => sum + repo.size, 0) / repos.length) : 0;
+
+            const contributionStatsHTML = `
+                <div class="contribution-item">
+                    <div class="contribution-icon">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0z"/>
+                            <path d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zM8 10.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/>
+                        </svg>
+                    </div>
+                    <div class="contribution-info">
+                        <div class="contribution-value">${totalIssues}</div>
+                        <div class="contribution-label">Open Issues</div>
+                    </div>
+                </div>
+                <div class="contribution-item">
+                    <div class="contribution-icon">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5v-9zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5z"/>
+                        </svg>
+                    </div>
+                    <div class="contribution-info">
+                        <div class="contribution-value">${originalRepos}</div>
+                        <div class="contribution-label">Original Repos</div>
+                    </div>
+                </div>
+                <div class="contribution-item">
+                    <div class="contribution-icon">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+                        </svg>
+                    </div>
+                    <div class="contribution-info">
+                        <div class="contribution-value">${forkedRepos}</div>
+                        <div class="contribution-label">Forked Repos</div>
+                    </div>
+                </div>
+                <div class="contribution-item">
+                    <div class="contribution-icon">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.75 1.75a.75.75 0 0 0-1.5 0v12.5a.75.75 0 0 0 1.5 0V1.75zM5.5 3a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1h-8zM5 6.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1h-8zm0 3a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1h-8z"/>
+                        </svg>
+                    </div>
+                    <div class="contribution-info">
+                        <div class="contribution-value">${formatSize(avgSize)}</div>
+                        <div class="contribution-label">Avg Repo Size</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('contributionStats').innerHTML = contributionStatsHTML;
+
+            // Featured Repository (most starred)
+            const featuredRepo = repos.reduce((max, repo) => repo.stargazers_count > max.stargazers_count ? repo : max, repos[0]);
+
+            if (featuredRepo) {
+                const featuredHTML = `
+                    <div class="featured-badge">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+                        </svg>
+                        Most Starred Repository
+                    </div>
+                    <div class="featured-repo-name" onclick="window.open('${featuredRepo.html_url}', '_blank')">
+                        ${featuredRepo.name}
+                    </div>
+                    <div class="featured-repo-desc">${featuredRepo.description || 'No description available'}</div>
+                    <div class="featured-stats">
+                        ${featuredRepo.language ? `
+                            <div class="language-badge">
+                                <span class="language-dot" style="background-color: ${languageColors[featuredRepo.language] || '#64748b'}"></span>
+                                ${featuredRepo.language}
+                            </div>
+                        ` : ''}
+                        <div class="repo-stat">
+                            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+                            </svg>
+                            ${formatNumber(featuredRepo.stargazers_count)} stars
+                        </div>
+                        <div class="repo-stat">
+                            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+                            </svg>
+                            ${formatNumber(featuredRepo.forks_count)} forks
+                        </div>
+                        <div class="repo-stat">
+                            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                <path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v12.5A1.75 1.75 0 0 1 14.25 16H1.75A1.75 1.75 0 0 1 0 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25Z"/>
+                                <path d="M13 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
+                            </svg>
+                            ${formatSize(featuredRepo.size)}
+                        </div>
+                        ${featuredRepo.watchers_count > 0 ? `
+                            <div class="repo-stat">
+                                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                    <path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.67 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.33 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 0 0 0-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/>
+                                </svg>
+                                ${formatNumber(featuredRepo.watchers_count)} watching
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.getElementById('featuredRepo').innerHTML = featuredHTML;
+            }
+
+            // Top repositories (sorted by stars) - increased from 6 to 9
+            const topRepos = repos
+                .sort((a, b) => b.stargazers_count - a.stargazers_count)
+                .slice(0, 9);
+
+            const reposHTML = topRepos.map(repo => `
+                <div class="repo-card" onclick="window.open('${repo.html_url}', '_blank')">
+                    <div class="repo-header">
+                        <div class="repo-name">${repo.name}</div>
+                    </div>
+                    <div class="repo-description">${repo.description || 'No description'}</div>
+                    <div class="repo-footer">
+                        ${repo.language ? `
+                            <div class="language-badge">
+                                <span class="language-dot" style="background-color: ${languageColors[repo.language] || '#64748b'}"></span>
+                                ${repo.language}
+                            </div>
+                        ` : ''}
+                        <div class="repo-stat">
+                            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+                            </svg>
+                            ${formatNumber(repo.stargazers_count)}
+                        </div>
+                        <div class="repo-stat">
+                            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                                <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+                            </svg>
+                            ${formatNumber(repo.forks_count)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('reposGrid').innerHTML = reposHTML;
+
+            // Popular topics from repositories
+            const allTopics = {};
+            repos.forEach(repo => {
+                if (repo.topics && repo.topics.length > 0) {
+                    repo.topics.forEach(topic => {
+                        allTopics[topic] = (allTopics[topic] || 0) + 1;
+                    });
+                }
+            });
+
+            const topTopics = Object.entries(allTopics)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            if (topTopics.length > 0) {
+                const topicsHTML = topTopics.map(([topic, count]) => `
+                    <div class="topic-tag" title="${count} repositories">
+                        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.5 7.775V2.75a.25.25 0 0 1 .25-.25h5.025a.25.25 0 0 1 .177.073l6.25 6.25a.25.25 0 0 1 0 .354l-5.025 5.025a.25.25 0 0 1-.354 0l-6.25-6.25a.25.25 0 0 1-.073-.177Zm-1.5 0V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.75 1.75 0 0 1 1 7.775ZM6 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/>
+                        </svg>
+                        ${topic}
+                    </div>
+                `).join('');
+                document.getElementById('topicsGrid').innerHTML = topicsHTML;
+                document.getElementById('topicsSection').style.display = 'block';
+            } else {
+                document.getElementById('topicsSection').style.display = 'none';
+            }
+
+            // Timestamp
+            const fetchTime = new Date();
+            const updatedDate = new Date(user.updated_at);
+            const timeOptions = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+
+            document.getElementById('profileTimestamp').innerHTML = `
+                Data fetched on ${fetchTime.toLocaleString('en-US', timeOptions)} •
+                Profile last updated ${formatRelativeTime(updatedDate)}
+            `;
+
+            showProfile();
+        }
+
+        function formatRelativeTime(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            const diffMonths = Math.floor(diffDays / 30);
+            const diffYears = Math.floor(diffDays / 365);
+
+            if (diffYears > 0) return `${diffYears} year${diffYears > 1 ? 's' : ''} ago`;
+            if (diffMonths > 0) return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+            if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffMins > 0) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            return 'just now';
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        function formatSize(kb) {
+            if (kb >= 1024000) {
+                return (kb / 1024000).toFixed(1) + ' GB';
+            }
+            if (kb >= 1024) {
+                return (kb / 1024).toFixed(1) + ' MB';
+            }
+            return kb + ' KB';
+        }
+
+        function showLoading() {
+            loading.classList.add('show');
+            searchBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            loading.classList.remove('show');
+            searchBtn.disabled = false;
+        }
+
+        function showError(message) {
+            errorMessage.textContent = `❌ Error: ${message}`;
+            errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('show');
+        }
+
+        function showProfile() {
+            profileCard.classList.add('show');
+            document.querySelector('.search-section').style.display = 'none';
+            document.querySelector('.header').style.display = 'none';
+        }
+
+        function hideProfile() {
+            profileCard.classList.remove('show');
+            document.querySelector('.search-section').style.display = 'block';
+            document.querySelector('.header').style.display = 'block';
+        }
+
+        // Auto-load a demo profile on first visit (optional)
+        // Uncomment the line below to auto-load a profile
+        // fetchGitHubStats('torvalds');
+    </script>
+</body>
+</html>
