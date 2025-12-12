@@ -1,4 +1,4 @@
-# GitHub Stats - Developer ID Card Generator
+# DevCard - Developer ID Card Generator
 
 A beautiful, modern web application that generates stunning visual ID cards for GitHub profiles. Perfect for sharing your GitHub stats on social media, portfolios, or with your team.
 
@@ -53,7 +53,7 @@ A beautiful, modern web application that generates stunning visual ID cards for 
 
 ### Option 1: Direct Usage (Recommended)
 
-1. **Download the file**: Save `GithubStats.html` to your computer
+1. **Download the file**: Save `devcard.html` to your computer
 2. **Open in browser**: Double-click the file to open it in any modern web browser
 3. **Enter username**: Type any GitHub username and click "Generate"
 4. **Download or share**: Use the buttons at the bottom to download or share the profile
@@ -65,7 +65,7 @@ A beautiful, modern web application that generates stunning visual ID cards for 
 git clone <repository-url>
 
 # Navigate to the directory
-cd "Github Stats"
+cd "DevCard"
 
 # Serve with any static server (examples below)
 
@@ -79,15 +79,15 @@ npx http-server
 php -S localhost:8000
 ```
 
-Then open `http://localhost:8000/GithubStats.html` in your browser.
+Then open `http://localhost:8000/devcard.html` in your browser.
 
 ### Option 3: Share Direct Links
 
 Share profiles with pre-loaded data using URL parameters:
 
 ```
-GithubStats.html?user=torvalds
-GithubStats.html?user=github
+devcard.html?user=torvalds
+devcard.html?user=github
 ```
 
 ## 🎨 Features Breakdown
@@ -208,7 +208,7 @@ Contributions are welcome! Here's how you can help:
 
 ```bash
 # No build process required!
-# Just edit GithubStats.html and refresh your browser
+# Just edit devcard.html and refresh your browser
 ```
 
 ## 📄 License
